@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  web:
+    image: rpi-debian-tempmonitor-web
+    build: rpi-debian-tempmonitor-web
+    restart: always
+    environment:
+      TZ: Asia/Tokyo
+      MYSQL_HOSTNAME: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: tempmonitor
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ''
+      TWITTER_CONSUMER_KEY:
+      TWITTER_CONSUMER_SECRET:
+      TWITTER_ACCESS_TOKEN:
+      TWITTER_ACCESS_TOKEN_SECRET:
+    depends_on:
+      - mysql
+    ports:
+      - '${TEMPMONITOR_HTTP_PORT}:8080'
+      - '${TEMPMONITOR_WEBSOCKET_PORT}:8888'
+    devices:
+      - /dev/i2c-1
+  mysql:
+    image: rpi-ubuntu-mysql
+    build: rpi-ubuntu-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: tempmonitor
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    expose:
+      - 3306
+    volumes:
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./mysql-data:/var/lib/mysql
